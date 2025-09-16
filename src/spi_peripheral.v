@@ -46,3 +46,27 @@ always @(posedge clk or negedge rst_n) begin
         COPI_ff2 <= COPI_ff1;
     end
 end
+
+wire sclk_rising = (SCLK_ff1 & ~SCLK_ff2);
+wire ncs_falling = (~nCS_ff1 & nCS_ff2);
+wire ncs_rising = (nCS_ff1 & ~nCS_ff2);
+
+reg [15:0] shift_reg;
+reg [4:0] bit_count; // 5 bits wide to hold values up to 16
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        bit_count <= 0;
+        shift_reg <= 16'd0;
+    end else begin
+        if (ncs_falling) begin
+            // transaction starting
+            bit_count <= 0;
+            shift_reg <= 16'd0;
+        end else if (!nCS_ff2 && sclk_rising) begin
+            // transaction in progress
+            shift_reg <= {shift_reg[14:0], COPI_ff2};
+            bit_count <= bit_count + 1;
+        end
+    end
+end
