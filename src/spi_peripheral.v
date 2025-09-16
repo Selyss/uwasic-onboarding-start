@@ -26,6 +26,17 @@ always @(posedge clk or negedge rst_n) begin
         en_reg_pwm_15_8 <= 8'h00;
         pwm_duty_cycle <= 8'h00;
     end else begin
+        // update after full valid transaction for writes
+        if (transaction_ready && rw_bit) begin
+            case (addr)
+                7'h00: en_reg_out_7_0 <= data;
+                7'h01: en_reg_out_15_8  <= data;
+                7'h02: en_reg_pwm_7_0   <= data;
+                7'h03: en_reg_pwm_15_8  <= data;
+                7'h04: pwm_duty_cycle   <= data;
+                default: ; // ignore invalid addresses
+            endcase
+        end
 
     end
 end
@@ -70,3 +81,28 @@ always @(posedge clk or negedge rst_n) begin
         end
     end
 end
+
+reg transaction_ready;
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        transaction_ready <= 0;
+    end else begin
+        if (ncs_rising && bit_count == 16) begin
+            transaction_ready <= 1'b1;
+        end else begin
+            transaction_ready <= 1'b0; // clear when not needed
+        end
+    end
+end
+
+// helper signals
+wire rw_bit;
+wire [6:0] addr;
+wire [7:0] data;
+
+assign rw_bit = shift_reg[15];
+assign addr = shift_reg[14:8];
+assign data = shift_reg[7:0];
+
+endmodule
