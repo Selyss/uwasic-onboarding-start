@@ -8,19 +8,22 @@ from cocotb.triggers import ClockCycles
 from cocotb.types import Logic
 from cocotb.types import LogicArray
 
+
 async def await_half_sclk(dut):
     """Wait for the SCLK signal to go high or low."""
     start_time = cocotb.utils.get_sim_time(units="ns")
     while True:
         await ClockCycles(dut.clk, 1)
         # Wait for half of the SCLK period (10 us)
-        if (start_time + 100*100*0.5) < cocotb.utils.get_sim_time(units="ns"):
+        if (start_time + 100 * 100 * 0.5) < cocotb.utils.get_sim_time(units="ns"):
             break
     return
+
 
 def ui_in_logicarray(ncs, bit, sclk):
     """Setup the ui_in value as a LogicArray."""
     return LogicArray(f"00000{ncs}{bit}{sclk}")
+
 
 async def send_spi_transaction(dut, r_w, address, data):
     """
@@ -28,7 +31,7 @@ async def send_spi_transaction(dut, r_w, address, data):
     - 1 bit for Read/Write
     - 7 bits for address
     - 8 bits for data
-    
+
     Parameters:
     - r_w: boolean, True for write, False for read
     - address: int, 7-bit address (0-127)
@@ -55,7 +58,7 @@ async def send_spi_transaction(dut, r_w, address, data):
     await ClockCycles(dut.clk, 1)
     # Send first byte (RW + Address)
     for i in range(8):
-        bit = (first_byte >> (7-i)) & 0x1
+        bit = (first_byte >> (7 - i)) & 0x1
         # SCLK low, set COPI
         sclk = 0
         dut.ui_in.value = ui_in_logicarray(ncs, bit, sclk)
@@ -66,7 +69,7 @@ async def send_spi_transaction(dut, r_w, address, data):
         await await_half_sclk(dut)
     # Send second byte (Data)
     for i in range(8):
-        bit = (data_int >> (7-i)) & 0x1
+        bit = (data_int >> (7 - i)) & 0x1
         # SCLK low, set COPI
         sclk = 0
         dut.ui_in.value = ui_in_logicarray(ncs, bit, sclk)
@@ -82,6 +85,7 @@ async def send_spi_transaction(dut, r_w, address, data):
     dut.ui_in.value = ui_in_logicarray(ncs, bit, sclk)
     await ClockCycles(dut.clk, 600)
     return ui_in_logicarray(ncs, bit, sclk)
+
 
 @cocotb.test()
 async def test_spi(dut):
@@ -107,7 +111,7 @@ async def test_spi(dut):
     dut._log.info("Write transaction, address 0x00, data 0xF0")
     ui_in_val = await send_spi_transaction(dut, 1, 0x00, 0xF0)  # Write transaction
     assert dut.uo_out.value == 0xF0, f"Expected 0xF0, got {dut.uo_out.value}"
-    await ClockCycles(dut.clk, 1000) 
+    await ClockCycles(dut.clk, 1000)
 
     dut._log.info("Write transaction, address 0x01, data 0xCC")
     ui_in_val = await send_spi_transaction(dut, 1, 0x01, 0xCC)  # Write transaction
@@ -122,7 +126,7 @@ async def test_spi(dut):
     ui_in_val = await send_spi_transaction(dut, 0, 0x30, 0xBE)
     assert dut.uo_out.value == 0xF0, f"Expected 0xF0, got {dut.uo_out.value}"
     await ClockCycles(dut.clk, 100)
-    
+
     dut._log.info("Read transaction (invalid), address 0x41 (invalid), data 0xEF")
     ui_in_val = await send_spi_transaction(dut, 0, 0x41, 0xEF)
     await ClockCycles(dut.clk, 100)
@@ -149,13 +153,16 @@ async def test_spi(dut):
 
     dut._log.info("SPI test completed successfully")
 
+
 @cocotb.test()
 async def test_pwm_freq(dut):
+    dut._log.info("Starting PWM Frequency test")
     # Write your test here
     dut._log.info("PWM Frequency test completed successfully")
 
 
 @cocotb.test()
 async def test_pwm_duty(dut):
+    dut._log.info("Starting PWM Duty Cycle test")
     # Write your test here
     dut._log.info("PWM Duty Cycle test completed successfully")
