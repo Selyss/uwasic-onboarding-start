@@ -158,6 +158,8 @@ async def test_spi(dut):
 async def test_pwm_freq(dut):
     dut._log.info("Starting PWM Frequency test")
     clock = Clock(dut.clk, 100, units="ns")
+    cocotb.start_soon(clock.start())
+
     dut._log.info("Reset")
     dut.ena.value = 1
     ncs = 1
@@ -175,21 +177,34 @@ async def test_pwm_freq(dut):
     await send_spi_transaction(dut, 1, 0x02, 0x01)
     await send_spi_transaction(dut, 1, 0x04, 0x80)
 
+    await ClockCycles(dut.clk, 1000)
+
     dut._log.info("Measuring PWM frequency")
 
-    while dut.uo_out[0] != 1:
+    while dut.uo_out[0].value != 1:
         await RisingEdge(dut.clk)
+    rising_edge1 = cocotb.utils.get_sim_time(units="ns")
 
-    rising_edge_1 = cocotb.utils.get_sim_time(units="ns")
-
-    while dut.uio_out[0] != 1:
+    while dut.uo_out[0].value != 0:
         await RisingEdge(dut.clk)
+    while dut.uo_out[0].value != 1:
+        await RisingEdge(dut.clk)
+    rising_edge2 = cocotb.utils.get_sim_time(units="ns")
 
-    rising_edge_2 = cocotb.utils.get_sim_time(units="ns")
+    period_ns = rising_edge2 - rising_edge1
+    period_s = period_ns / 1e9
+    freq_hz = 1 / period_s
 
-    period = rising_edge_2 - rising_edge_1
+    dut._log.info(f"Period: {period_ns} ns")
+    dut._log.info(f"Frequency: {freq_hz} hz")
 
-    freq = 1 / period
+    expected_freq = 3000.0
+    tolerance_percent = 1.0
+    tolerance = expected_freq * (tolerance_percent / 100)
+
+    assert (
+        abs(freq_hz - expected_freq) < tolerance
+    ), f"Expected approx. {expected_freq} hz (+/-{tolerance_percent}%), got {freq_hz} hz"
 
     dut._log.info("PWM Frequency test completed successfully")
 
@@ -214,6 +229,8 @@ async def test_pwm_duty(dut):
     await send_spi_transaction(dut, 1, 0x00, 0x01)
     await send_spi_transaction(dut, 1, 0x02, 0x01)
     await send_spi_transaction(dut, 1, 0x04, 0x80)
+
+    await ClockCycles(dut.clk, 1000)
 
     dut._log.info("Measuring PWM duty cycle")
 
