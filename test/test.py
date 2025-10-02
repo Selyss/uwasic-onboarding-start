@@ -213,6 +213,7 @@ async def test_pwm_freq(dut):
 async def test_pwm_duty(dut):
     dut._log.info("Starting PWM Duty Cycle test")
     clock = Clock(dut.clk, 100, units="ns")
+    cocotb.start_soon(clock.start())
     dut._log.info("Reset")
     dut.ena.value = 1
     ncs = 1
@@ -254,7 +255,7 @@ async def test_pwm_duty(dut):
 
     dut._log.info(f"High time: {high_time} ns")
     dut._log.info(f"Period: {period} ns")
-    dut._log.info(f"Duty cycle: {duty_cycle} ns")
+    dut._log.info(f"Duty cycle: {duty_cycle:.1f}%")
 
     # check tolerance
     expected_duty = 50.0
