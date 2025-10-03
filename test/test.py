@@ -160,7 +160,7 @@ async def test_pwm_freq(dut):
     clock = Clock(dut.clk, 100, units="ns")
     cocotb.start_soon(clock.start())
 
-    dut._log.info("Reset")
+    # dut._log.info("Reset")
     dut.ena.value = 1
     ncs = 1
     bit = 0
@@ -172,14 +172,14 @@ async def test_pwm_freq(dut):
     await ClockCycles(dut.clk, 5)
 
     # config PWM on uo_out[0]
-    dut._log.info("Configure PWM on uo_out[0]")
+    # dut._log.info("Configure PWM on uo_out[0]")
     await send_spi_transaction(dut, 1, 0x00, 0x01)
     await send_spi_transaction(dut, 1, 0x02, 0x01)
     await send_spi_transaction(dut, 1, 0x04, 0x80)
 
-    await ClockCycles(dut.clk, 1000)
+    # await ClockCycles(dut.clk, 1000)
 
-    dut._log.info("Measuring PWM frequency")
+    # dut._log.info("Measuring PWM frequency")
 
     while dut.uo_out[0].value != 1:
         await RisingEdge(dut.clk)
@@ -195,8 +195,8 @@ async def test_pwm_freq(dut):
     period_s = period_ns / 1e9
     freq_hz = 1 / period_s
 
-    dut._log.info(f"Period: {period_ns} ns")
-    dut._log.info(f"Frequency: {freq_hz} hz")
+    # dut._log.info(f"Period: {period_ns} ns")
+    # dut._log.info(f"Frequency: {freq_hz} hz")
 
     expected_freq = 3000.0
     tolerance_percent = 1.0
@@ -214,7 +214,7 @@ async def test_pwm_duty(dut):
     dut._log.info("Starting PWM Duty Cycle test")
     clock = Clock(dut.clk, 100, units="ns")
     cocotb.start_soon(clock.start())
-    dut._log.info("Reset")
+    # dut._log.info("Reset")
     dut.ena.value = 1
     ncs = 1
     bit = 0
@@ -226,14 +226,14 @@ async def test_pwm_duty(dut):
     await ClockCycles(dut.clk, 5)
 
     # config PWM on uo_out[0]
-    dut._log.info("Configure PWM on uo_out[0]")
+    # dut._log.info("Configure PWM on uo_out[0]")
     await send_spi_transaction(dut, 1, 0x00, 0x01)
     await send_spi_transaction(dut, 1, 0x02, 0x01)
     await send_spi_transaction(dut, 1, 0x04, 0x80)
 
-    await ClockCycles(dut.clk, 1000)
+    # await ClockCycles(dut.clk, 1000)
 
-    dut._log.info("Measuring PWM duty cycle")
+    # dut._log.info("Measuring PWM duty cycle")
 
     # wait for rising edge
     while dut.uo_out[0].value != 1:
@@ -253,9 +253,9 @@ async def test_pwm_duty(dut):
     period = t3 - t1
     duty_cycle = (high_time / period) * 100
 
-    dut._log.info(f"High time: {high_time} ns")
-    dut._log.info(f"Period: {period} ns")
-    dut._log.info(f"Duty cycle: {duty_cycle:.1f}%")
+    # dut._log.info(f"High time: {high_time} ns")
+    # dut._log.info(f"Period: {period} ns")
+    # dut._log.info(f"Duty cycle: {duty_cycle:.1f}%")
 
     # check tolerance
     expected_duty = 50.0
