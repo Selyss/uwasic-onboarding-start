@@ -258,7 +258,7 @@ async def test_pwm_duty(dut):
 
     # check tolerance
     expected_duty = 50.0
-    tolerance = 5.0
+    tolerance = 1.0
     assert (
         abs(duty_cycle - expected_duty) < tolerance
     ), f"Expected approx. {expected_duty}%, got {duty_cycle}%"
