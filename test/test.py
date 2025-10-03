@@ -172,7 +172,7 @@ async def test_pwm_freq(dut):
     await send_spi_transaction(dut, 1, 0x02, 0x01)
     await send_spi_transaction(dut, 1, 0x04, 0x80)
 
-    # await ClockCycles(dut.clk, 1000)
+    await ClockCycles(dut.clk, 1000)
 
     # dut._log.info("Measuring PWM frequency")
 
@@ -192,13 +192,12 @@ async def test_pwm_freq(dut):
     # dut._log.info(f"Period: {period_ns} ns")
     # dut._log.info(f"Frequency: {freq_hz} hz")
 
-    expected_freq = 3000.0
-    tolerance_percent = 1.0
-    tolerance = expected_freq * (tolerance_percent / 100)
+    # expected_freq = 3000.0
+    # tolerance_percent = 1.0
+    # tolerance = expected_freq * (tolerance_percent / 100)
+    tolerance = 30
 
-    assert (
-        abs(freq_hz - expected_freq) < tolerance
-    ), f"Expected approx. {expected_freq} hz (+/-{tolerance_percent}%), got {freq_hz} hz"
+    assert abs(freq_hz - 3000) <= tolerance, f"Expected 3000hz, got {freq_hz}hz"
 
     dut._log.info("PWM Frequency test completed successfully")
 
