@@ -156,7 +156,7 @@ async def test_spi(dut):
 
 @cocotb.test()
 async def test_pwm_freq(dut):
-    cocotb.start_soon(Clock(dut.clk, 100, units="ns"))
+    cocotb.start_soon(Clock(dut.clk, 100, units="ns").start())
 
     # dut._log.info("Reset")
     dut.ena.value = 1
@@ -179,8 +179,8 @@ async def test_pwm_freq(dut):
         await RisingEdge(dut.clk)
     rising_edge1 = cocotb.utils.get_sim_time(units="ns")
 
-    # while dut.uo_out[0].value != 0:
-    #     await RisingEdge(dut.clk)
+    while dut.uo_out[0].value != 0:
+        await RisingEdge(dut.clk)
     while dut.uo_out[0].value != 1:
         await RisingEdge(dut.clk)
     rising_edge2 = cocotb.utils.get_sim_time(units="ns")
