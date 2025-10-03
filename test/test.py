@@ -192,8 +192,7 @@ async def test_pwm_freq(dut):
     rising_edge2 = cocotb.utils.get_sim_time(units="ns")
 
     period_ns = rising_edge2 - rising_edge1
-    period_s = period_ns / 1e9
-    freq_hz = 1 / period_s
+    freq_hz = 1e9 / period_ns
 
     # dut._log.info(f"Period: {period_ns} ns")
     # dut._log.info(f"Frequency: {freq_hz} hz")
