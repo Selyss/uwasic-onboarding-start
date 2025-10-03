@@ -175,14 +175,10 @@ async def test_pwm_freq(dut):
 
     # dut._log.info("Measuring PWM frequency")
 
-    while dut.uo_out[0].value != 1:
-        await RisingEdge(dut.clk)
+    await RisingEdge(dut.uo_out_bit0)
     rising_edge1 = cocotb.utils.get_sim_time(units="ns")
 
-    while dut.uo_out[0].value != 0:
-        await RisingEdge(dut.clk)
-    while dut.uo_out[0].value != 1:
-        await RisingEdge(dut.clk)
+    await RisingEdge(dut.uo_out_bit0)
     rising_edge2 = cocotb.utils.get_sim_time(units="ns")
 
     period_ns = rising_edge2 - rising_edge1
